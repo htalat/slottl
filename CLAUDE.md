@@ -110,3 +110,17 @@ velocity flick), then normalizes. Browsing clears the previous result;
 the parked food is announced as "Maybe X?" via the live region. `spin()`
 reads its starting step live from `y`, so spinning mid-browse still lands
 exactly on the planned winner.
+
+## Deployment
+
+GitHub Pages at https://htalat.github.io/slottl/ — the
+`.github/workflows/deploy.yml` workflow builds and deploys on every push
+to main (Pages "workflow" build type, already enabled on the repo).
+`vite.config.ts` sets `base: '/slottl/'` and the router follows it via
+`basepath: import.meta.env.BASE_URL`, so dev serves at
+localhost:5173/slottl/ too. The optional Actions repo variable
+`VITE_API_BASE_URL` points the deployed app at the bookish-doodle API
+(`gh variable set VITE_API_BASE_URL --body <url>`); unset, the site
+builds in pure local mode. The htalat.github.io origin is already in
+bookish-doodle's CORS allowlist. Adding routes later requires an SPA
+404 fallback (Pages serves 404 on deep links).
