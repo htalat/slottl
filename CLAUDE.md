@@ -21,10 +21,17 @@ Framer Motion.
 ```
 src/
   main.tsx                     TanStack Router setup (routes defined inline)
-  pages/HomePage.tsx           picks a FoodSource, renders <SlotMachine>
+  pages/HomePage.tsx           picks a FoodSource, renders <SlotMachine>,
+                               toggles the FoodListEditor
   data/
     foodSources.ts             FoodSource type + FOOD_SOURCES registry
     sources/                   one file per food list (classics, fridge, recipes)
+                               — these are SEEDS; user edits live in localStorage
+    useFoodList.ts             editable list per source, persisted to
+                               localStorage (slottl:foods:<sourceId>)
+  components/food-editor/
+    FoodListEditor.tsx         add/remove/reset UI; pure presentation,
+                               raises events, never touches storage
   components/slot-machine/     generic, reusable, data-agnostic UI
     SlotMachine.tsx            composition root; props in, result callback out
     Reel.tsx                   presentation: window, strip, blur, winner glow
@@ -44,13 +51,21 @@ or fetch anything. It receives a ready `FoodOption[]` prop.
 
 ## Adding / editing food (the common task)
 
-- **Edit an existing list**: change `src/data/sources/fridge.ts` or
-  `recipes.ts`. Entries are `{ emoji, label, tint? }`; `tint` is a
-  Tailwind `bg-*-50` class (optional, defaults to `bg-orange-50`).
+- **In the app** (primary path): "Edit foods" on the HomePage opens
+  `FoodListEditor` — add (emoji picker + name), remove, reset. Edits go
+  through `useFoodList`, which copies the list into localStorage on
+  first edit; from then on the stored copy wins over the seed file.
+  "Reset" deletes the copy and returns to the seed.
+- **Edit a seed list**: change `src/data/sources/fridge.ts` etc.
+  Entries are `{ emoji, label, tint? }`; `tint` is a Tailwind `bg-*-50`
+  class (optional; `useFoodList.addFood` auto-cycles tints for new
+  items). NOTE: a seed edit is invisible to a browser that already has
+  local edits for that source until the user hits Reset.
 - **Add a new list**: create `src/data/sources/<name>.ts` exporting a
   `FoodOption[]`, then register it in `FOOD_SOURCES` in
-  `src/data/foodSources.ts`. It shows up in the HomePage picker
-  automatically. Lists need ≥ 2 items to spin.
+  `src/data/foodSources.ts`. It shows up in the HomePage picker and
+  becomes editable automatically. Lists need ≥ 2 items to spin
+  (HomePage swaps in an empty-state card below that).
 - **Async sources later** (localStorage, API, real fridge/recipe data):
   load in the route's TanStack Router `loader` (or a hook in `pages/`),
   map the rich data down to `FoodOption[]`, and pass it in as a prop.
