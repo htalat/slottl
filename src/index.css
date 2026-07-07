@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Nunito', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-display);
+}
