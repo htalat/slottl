@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FoodListEditor } from '../components/food-editor/FoodListEditor'
 import { SlotMachine } from '../components/slot-machine'
+import { SyncPanel } from '../components/sync/SyncPanel'
 import { FOOD_SOURCES, getFoodSource } from '../data/foodSources'
 import { useFoodList } from '../data/useFoodList'
 
@@ -8,7 +9,7 @@ export function HomePage() {
   const [sourceId, setSourceId] = useState(FOOD_SOURCES[0].id)
   const [editing, setEditing] = useState(false)
   const source = getFoodSource(sourceId)
-  const { foods, addFood, removeFood, resetFoods, isCustomized } =
+  const { foods, addFood, removeFood, resetFoods, isCustomized, syncState } =
     useFoodList(source)
 
   return (
@@ -72,6 +73,8 @@ export function HomePage() {
           isCustomized={isCustomized}
         />
       )}
+
+      <SyncPanel syncState={syncState} />
     </main>
   )
 }

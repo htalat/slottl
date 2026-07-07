@@ -27,8 +27,12 @@ src/
     foodSources.ts             FoodSource type + FOOD_SOURCES registry
     sources/                   one file per food list (classics, fridge, recipes)
                                — these are SEEDS; user edits live in localStorage
-    useFoodList.ts             editable list per source, persisted to
-                               localStorage (slottl:foods:<sourceId>)
+    useFoodList.ts             editable list per source: localStorage
+                               (slottl:foods:<sourceId>) + optional server sync
+    api.ts                     client for the bookish-doodle API (auth token
+                               store, OTP flow, food-list CRUD)
+  components/sync/
+    SyncPanel.tsx              sign-in (email OTP) + sync status widget
   components/food-editor/
     FoodListEditor.tsx         add/remove/reset UI; pure presentation,
                                raises events, never touches storage
@@ -66,11 +70,17 @@ or fetch anything. It receives a ready `FoodOption[]` prop.
   `src/data/foodSources.ts`. It shows up in the HomePage picker and
   becomes editable automatically. Lists need ≥ 2 items to spin
   (HomePage swaps in an empty-state card below that).
-- **Async sources later** (localStorage, API, real fridge/recipe data):
-  load in the route's TanStack Router `loader` (or a hook in `pages/`),
-  map the rich data down to `FoodOption[]`, and pass it in as a prop.
-  Richer domain types (ingredients, recipe links) belong in `data/`,
-  never in the component.
+- **Server sync**: set `VITE_API_BASE_URL` (see .env.example) to the
+  bookish-doodle API (~/Developer/bookish-doodle, module `src/slottl/`,
+  docs in its docs/slottl.md). Unset = pure local mode, no sign-in UI.
+  Auth is the platform's single-admin email OTP (`/auth/request-otp` →
+  `/auth/verify-otp`); the JWT lives in localStorage `slottl:token`.
+  Sync model: local-first, server-authoritative — on load the server
+  copy wins (404 → current local list is pushed as the initial copy);
+  every edit saves locally then PUTs the whole list (last write wins).
+  A 401 clears the token and drops back to local mode. Keep the
+  SlotMachine component ignorant of all of this — it only ever sees a
+  ready `FoodOption[]`.
 
 ## Invariants — do not break these
 
