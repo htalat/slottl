@@ -18,7 +18,11 @@ const indexRoute = createRoute({
   component: HomePage,
 })
 
-const router = createRouter({ routeTree: rootRoute.addChildren([indexRoute]) })
+const router = createRouter({
+  routeTree: rootRoute.addChildren([indexRoute]),
+  // Follow Vite's base path (e.g. /slottl/ on GitHub Pages)
+  basepath: import.meta.env.BASE_URL,
+})
 
 declare module '@tanstack/react-router' {
   interface Register {
